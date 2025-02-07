@@ -11,19 +11,27 @@ import (
 )
 
 func main() {
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Warning: No .env file found, using system env variables.")
+	} else {
+		log.Println(".env file loaded successfully.")
 	}
+
 
 	http.HandleFunc("/runsignup/events", handlers.RunSignupEventsHandler)
 
-	port:= os.Getenv("PORT")
+
+	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
 
 	fmt.Println("Server is running on http://localhost:" + port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	err = http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
