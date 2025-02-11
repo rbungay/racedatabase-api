@@ -123,6 +123,12 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	
 	var events []models.Event
 	for _, race := range data.Races {
+		eventType := race.Race.EventType
+		category, exists := EventTypeToCategory[eventType]
+		if !exists {
+			category = CategoryOther
+		}
+
 		events = append(events, models.Event{
 			ID:        race.Race.ID,
 			Name:      race.Race.Name,
@@ -132,6 +138,8 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 			City:      race.Race.Address.City,
 			State:     race.Race.Address.State,
 			Zipcode:   race.Race.Address.Zipcode,
+			EventType: eventType,
+			Category: category,
 		})
 	}
 

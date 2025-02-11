@@ -1,5 +1,6 @@
 package models
 
+import "github.com/rbungay/racedatabase-api/internal/api/runsignup/constants"
 
 type Event struct {
 	ID        int    `json:"race_id"`
@@ -11,5 +12,5 @@ type Event struct {
 	State     string `json:"state"`
 	Zipcode   string `json:"zipcode"`
 	EventType string        `json:"event_type"`  
-	Category  EventCategory `json:"category"` 
+	Category  constants.EventCategory `json:"category"` 
 }
