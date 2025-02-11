@@ -10,4 +10,6 @@ type Event struct {
 	City      string `json:"city"`
 	State     string `json:"state"`
 	Zipcode   string `json:"zipcode"`
+	EventType string        `json:"event_type"`  
+	Category  EventCategory `json:"category"` 
 }
