@@ -39,7 +39,7 @@ func RunSignupEventsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Step 4: Return the events as a JSON response
+	
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(events)
 

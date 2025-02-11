@@ -11,6 +11,39 @@ import (
 	"github.com/rbungay/racedatabase-api/config"
 )
 
+var validEventTypes = map[string]bool{
+	"running_race":       true,
+	"virtual_race":       true,
+	"nonprofit_event":    true,
+	"running_only":       true,
+	"walking_only":       true,
+	"race_walk":          true,
+	"wheelchair":         true,
+	"triathlon":          true,
+	"duathlon":           true,
+	"bike_race":          true,
+	"bike_ride":          true,
+	"mountain_bike_race": true,
+	"gravel_grinder":     true,
+	"fundraising_ride":   true,
+	"trail_race":         true,
+	"open_course_trail":  true,
+	"ultra":              true,
+	"hike":               true,
+	"obstacle_course":    true,
+	"adventure_race":     true,
+	"swim":               true,
+	"swim_run":           true,
+	"aqua_bike":          true,
+	"ski":                true,
+	"paddle_sports":      true,
+	"disc_golf":          true,
+	"clinic":             true,
+	"expo":               true,
+	"skate":              true,
+	"ruck":               true,
+	"other":              true,
+}
 
 type Event struct {
 	ID        int    `json:"race_id"`      
@@ -42,7 +75,10 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 		params.Set("city", city) 
 	}
 	if eventType != "" {
-		params.Set("event_type", eventType) 
+		if _, isValid := validEventTypes[eventType]; ! isValid {
+			return nil, fmt.Errorf("invalid event_type: %s. Must be one of: %v", eventType, validEventTypes)
+		} 
+		params.Set("event_type", eventType)
 	}
 	if startDate != "" {
 		params.Set("start_date", startDate) 
