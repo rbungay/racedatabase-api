@@ -25,11 +25,17 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	params.Set("api_key", apiKey)               
 	params.Set("api_secret", apiSecret)         
 	params.Set("format", "json")                
-	params.Set("state", state)                  
+      
+	
+	if state != "" {
+		params.Set("state", state)
+	} else {
+		return nil, fmt.Errorf("state paramater is required")
+	}
 
 	if eventType != "" {
-		if _, isValid := constants.validEventTypes[eventType]; ! isValid {
-			return nil, fmt.Errorf("invalid event_type: %s. Must be one of: %v", eventType, validEventTypes)
+		if _, isValid := constants.ValidEventTypes[eventType]; ! isValid {
+			return nil, fmt.Errorf("invalid event_type: %s. Must be one of: %v", eventType, constants.ValidEventTypes)
 		} 
 		params.Set("event_type", eventType)
 	}
@@ -75,19 +81,20 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	}
 	defer resp.Body.Close()
 
-	
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API returned status: %d", resp.StatusCode)
-	}
-
-	
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
 
 	
-	fmt.Println("Raw API Response:", string(body)) 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API error: status %d - response: %s", resp.StatusCode, string(body))
+	}
+
+	
+	if config.GetEnv("ENV", "development") == "development" {
+		fmt.Println("Raw API Response:", string(body))
+	}
 
 	
 	var data struct {
@@ -114,9 +121,9 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	}
 
 	
-	var events []Event
+	var events []models.Event
 	for _, race := range data.Races {
-		events = append(events, Event{
+		events = append(events, models.Event{
 			ID:        race.Race.ID,
 			Name:      race.Race.Name,
 			StartDate: race.Race.StartDate,
