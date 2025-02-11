@@ -9,55 +9,12 @@ import (
 	"time"
 
 	"github.com/rbungay/racedatabase-api/config"
+	"github.com/rbungay/racedatabase-api/internal/api/runsignup/constants"
+	"github.com/rbungay/racedatabase-api/internal/api/runsignup/models"
 )
 
-var validEventTypes = map[string]bool{
-	"running_race":       true,
-	"virtual_race":       true,
-	"nonprofit_event":    true,
-	"running_only":       true,
-	"walking_only":       true,
-	"race_walk":          true,
-	"wheelchair":         true,
-	"triathlon":          true,
-	"duathlon":           true,
-	"bike_race":          true,
-	"bike_ride":          true,
-	"mountain_bike_race": true,
-	"gravel_grinder":     true,
-	"fundraising_ride":   true,
-	"trail_race":         true,
-	"open_course_trail":  true,
-	"ultra":              true,
-	"hike":               true,
-	"obstacle_course":    true,
-	"adventure_race":     true,
-	"swim":               true,
-	"swim_run":           true,
-	"aqua_bike":          true,
-	"ski":                true,
-	"paddle_sports":      true,
-	"disc_golf":          true,
-	"clinic":             true,
-	"expo":               true,
-	"skate":              true,
-	"ruck":               true,
-	"other":              true,
-}
 
-type Event struct {
-	ID        int    `json:"race_id"`      
-	Name      string `json:"name"`         
-	StartDate string `json:"next_date"`    
-	EndDate   string `json:"next_end_date"`
-	URL       string `json:"url"`          
-	City      string `json:"city"`         
-	State     string `json:"state"`        
-	Zipcode   string `json:"zipcode"`      
-}
-
-
-func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]Event, error) {
+func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event, error) {
 
 	apiURL := config.GetEnv("RUNSIGNUP_API_URL", "")
 	apiKey := config.GetEnv("RUNSIGNUP_API_KEY", "")
@@ -70,16 +27,17 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	params.Set("format", "json")                
 	params.Set("state", state)                  
 
-	
-	if city != "" {
-		params.Set("city", city) 
-	}
 	if eventType != "" {
-		if _, isValid := validEventTypes[eventType]; ! isValid {
+		if _, isValid := constants.validEventTypes[eventType]; ! isValid {
 			return nil, fmt.Errorf("invalid event_type: %s. Must be one of: %v", eventType, validEventTypes)
 		} 
 		params.Set("event_type", eventType)
 	}
+
+	if city != "" {
+		params.Set("city", city) 
+	}
+
 	if startDate != "" {
 		params.Set("start_date", startDate) 
 	}
