@@ -105,6 +105,7 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 				StartDate string `json:"next_date"`
 				EndDate   string `json:"next_end_date"`
 				URL       string `json:"url"`
+				EventType string `json:"event_type"`
 				Address   struct {
 					City    string `json:"city"`
 					State   string `json:"state"`
@@ -123,10 +124,16 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	
 	var events []models.Event
 	for _, race := range data.Races {
-		eventType := race.Race.EventType
-		category, exists := EventTypeToCategory[eventType]
+	
+		finalEventType := eventType
+
+		if finalEventType == "" {
+			finalEventType = eventType
+		}
+
+		category, exists := constants.EventTypeToCategory[finalEventType]
 		if !exists {
-			category = CategoryOther
+			category = "Other"
 		}
 
 		events = append(events, models.Event{
@@ -138,7 +145,7 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 			City:      race.Race.Address.City,
 			State:     race.Race.Address.State,
 			Zipcode:   race.Race.Address.Zipcode,
-			EventType: eventType,
+			EventType: finalEventType,
 			Category: category,
 		})
 	}
