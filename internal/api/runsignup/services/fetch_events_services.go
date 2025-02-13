@@ -20,6 +20,10 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	var allEvents []models.Event
 	var errorList []error
 
+	if eventType != "" && !constants.ValidEventTypes[eventType] {
+		return nil, fmt.Errorf("invalid event_type: %s. Must be one of: %v", eventType, constants.ValidEventTypes)
+	}
+
 	for eventType := range constants.ValidEventTypes{
 		wg.Add(1)
 		go func(eventType string){
