@@ -7,15 +7,20 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"sync"
+	"errors"
 
 	"github.com/rbungay/racedatabase-api/config"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/constants"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/models"
 )
 
+func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event,error){
+	return FetchEventsFromAPI(state,city, eventType, startDate,endDate, minDistance, maxDistance, zipcode, radius)
+}
 
-func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event, error) {
 
+func fetchEventsFromAPI(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event, error) {
 	apiURL := config.GetEnv("RUNSIGNUP_API_URL", "")
 	apiKey := config.GetEnv("RUNSIGNUP_API_KEY", "")
 	apiSecret := config.GetEnv("RUNSIGNUP_API_SECRET", "")
@@ -85,17 +90,14 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
-
 	
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("API error: status %d - response: %s", resp.StatusCode, string(body))
 	}
-
 	
 	if config.GetEnv("ENV", "development") == "development" {
 		fmt.Println("Raw API Response:", string(body))
 	}
-
 	
 	var data struct {
 		Races []struct {
@@ -149,7 +151,6 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 			Category: category,
 		})
 	}
-
 
 	return events, nil
 }
