@@ -33,7 +33,7 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 			events, err := fetchEventsFromAPI(state,city,eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius)
 			if err != nil{
 				mu.Lock()
-				errorList = append(errorList, err)
+				errorList = append(errorList, fmt.Errorf("%s: %v", eventType, err))
 				mu.Unlock()
 				return
 			}
@@ -47,7 +47,7 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	wg.Wait()
 
 	if len(errorList)>0 {
-		return nil, fmt.Errorf("some event types failed to fetch: %v", errorList)
+		return allEvents, fmt.Errorf("some event types failed to fetch: %v", errorList)
 	}
 
 	return allEvents, nil
