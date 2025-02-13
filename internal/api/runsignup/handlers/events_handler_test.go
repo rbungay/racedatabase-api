@@ -12,7 +12,7 @@ import (
 )
 
 // Mock service function
-var mockFetchEvents = func(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]services.Event, error) {
+var mockFetchEvents = func(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event, error) {
 	return []models.Event{
 		{
 			ID:        12345,
@@ -53,7 +53,7 @@ func TestRunSignupEventsHandler_ValidRequest(t *testing.T) {
 	}
 
 	// Parse response
-	var events []services.Event
+	var events []models.Event
 	if err := json.Unmarshal(rr.Body.Bytes(), &events); err != nil {
 		t.Errorf("Failed to parse JSON response: %v", err)
 	}
