@@ -8,6 +8,8 @@ import (
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/services"
 )
 
+var FetchEventsFunc = services.FetchEvents
+
 
 func RunSignupEventsHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -33,7 +35,7 @@ func RunSignupEventsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	
-	events, err := services.FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius)
+	events, err := FetchEventsFunc(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius)
 	if err != nil {
 		http.Error(w, "Error fetching events: "+err.Error(), http.StatusInternalServerError)
 		return
