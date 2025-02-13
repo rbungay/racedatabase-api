@@ -3,7 +3,6 @@ package config
 import (
 	"log"
 	"os"
-
 	"github.com/joho/godotenv"
 )
 
@@ -36,4 +35,8 @@ func handleConfigError(err error, message string) {
 	if err != nil {
 		log.Println(message)
 	}
+}
+
+func SetEnv(key, value string){
+	os.Setenv(key,value)
 }
