@@ -132,15 +132,10 @@ func fetchEventsFromAPI(state, city, eventType, startDate, endDate, minDistance,
 			Race struct {
 				ID        int    `json:"race_id"`
 				Name      string `json:"name"`
-				StartDate string `json:"next_date"`
-				EndDate   string `json:"next_end_date"`
 				URL       string `json:"url"`
+				ExternalURL string `json:"external_race_url"`
 				EventType string `json:"event_type"`
-				Address   struct {
-					City    string `json:"city"`
-					State   string `json:"state"`
-					Zipcode string `json:"zipcode"`
-				} `json:"address"`
+				LogoURL string `json:"logo_url"`
 			} `json:"race"`
 		} `json:"races"`
 	}
@@ -152,29 +147,24 @@ func fetchEventsFromAPI(state, city, eventType, startDate, endDate, minDistance,
 	
 	var events []models.Event
 	for _, race := range data.Races {
-	
-		finalEventType := race.Race.EventType
 
+		finalEventType := race.Race.EventType
 		if finalEventType == "" {
 			finalEventType = eventType
-		}
+		}		
 
 		category, exists := constants.EventTypeToCategory[finalEventType]
 		if !exists {
-			category = "Other"
+			category = constants.CategoryOther
 		}
 
 		events = append(events, models.Event{
 			ID:        race.Race.ID,
 			Name:      race.Race.Name,
-			StartDate: race.Race.StartDate,
-			EndDate:   race.Race.EndDate,
 			URL:       race.Race.URL,
-			City:      race.Race.Address.City,
-			State:     race.Race.Address.State,
-			Zipcode:   race.Race.Address.Zipcode,
-			EventType: finalEventType,
-			Category: category,
+			ExternalURL: race.Race.ExternalURL,
+			LogoURL:     race.Race.LogoURL,
+			Category:    category,
 		})
 	}
 
