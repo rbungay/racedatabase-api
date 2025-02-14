@@ -9,7 +9,6 @@ import (
 	"github.com/rbungay/racedatabase-api/config"
 )
 
-
 func mockRunSignupAPI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	response := `{
@@ -20,6 +19,8 @@ func mockRunSignupAPI(w http.ResponseWriter, r *http.Request) {
 				"next_date": "2025-01-01",
 				"next_end_date": "2025-01-02",
 				"url": "https://example.com",
+				"external_race_url": "https://external-example.com",
+				"logo_url": "https://example.com/logo.png",
 				"event_type": "running_race",
 				"address": {
 					"city": "New York",
@@ -32,24 +33,20 @@ func mockRunSignupAPI(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(response))
 }
 
-
 func mockRunSignupAPI_Fail(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "API Error", http.StatusInternalServerError)
 }
 
 func TestFetchEvents_Success(t *testing.T) {
-	// Step 1: Start a mock server
 	mockServer := httptest.NewServer(http.HandlerFunc(mockRunSignupAPI))
 	defer mockServer.Close()
 
-	// Step 2: Temporarily override API URL
 	originalAPIURL := config.GetEnv("RUNSIGNUP_API_URL", "")
 	os.Setenv("RUNSIGNUP_API_URL", mockServer.URL)
 	defer os.Setenv("RUNSIGNUP_API_URL", originalAPIURL)
 
 	events, err := FetchEvents("NY", "New York", "running_race", "2025-01-01", "2025-12-31", "", "", "", "")
 
-	// Step 4: Validate results
 	if err != nil {
 		t.Fatalf("FetchEvents failed: %v", err)
 	}
@@ -57,21 +54,25 @@ func TestFetchEvents_Success(t *testing.T) {
 		t.Fatalf("Expected events, got none")
 	}
 
-	// Step 5: Verify data
 	expectedName := "Test Race"
+	expectedExternalURL := "https://external-example.com"
+	expectedLogoURL := "https://example.com/logo.png"
+
 	if events[0].Name != expectedName {
 		t.Errorf("Unexpected event name: got %v, want %v", events[0].Name, expectedName)
 	}
+	if events[0].ExternalURL != expectedExternalURL {
+		t.Errorf("Unexpected external URL: got %v, want %v", events[0].ExternalURL, expectedExternalURL)
+	}
+	if events[0].LogoURL != expectedLogoURL {
+		t.Errorf("Unexpected logo URL: got %v, want %v", events[0].LogoURL, expectedLogoURL)
+	}
 }
-
-
-
 
 func TestFetchEvents_Failure(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(mockRunSignupAPI_Fail))
 	defer mockServer.Close()
 
-	// Override API URL temporarily
 	originalAPIURL := config.GetEnv("RUNSIGNUP_API_URL", "")
 	os.Setenv("RUNSIGNUP_API_URL", mockServer.URL)
 	defer os.Setenv("RUNSIGNUP_API_URL", originalAPIURL)
@@ -85,7 +86,6 @@ func TestFetchEvents_Failure(t *testing.T) {
 		t.Errorf("Expected no events on failure, but got %d", len(events))
 	}
 }
-
 
 func TestFetchEvents_InvalidEventType(t *testing.T) {
 	events, err := FetchEvents("NY", "", "invalid_event", "", "", "", "", "", "")
@@ -112,6 +112,8 @@ func mockRunSignupAPI_PartialFail(w http.ResponseWriter, r *http.Request) {
 				"next_date": "2025-06-15",
 				"next_end_date": "2025-06-16",
 				"url": "https://example.com/triathlon",
+				"external_race_url": "https://external-triathlon.com",
+				"logo_url": "https://example.com/triathlon-logo.png",
 				"event_type": "triathlon",
 				"address": {
 					"city": "Los Angeles",
@@ -124,12 +126,10 @@ func mockRunSignupAPI_PartialFail(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(response))
 }
 
-
 func TestFetchEvents_PartialFailure(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(mockRunSignupAPI_PartialFail))
 	defer mockServer.Close()
 
-	// Override API URL
 	originalAPIURL := config.GetEnv("RUNSIGNUP_API_URL", "")
 	os.Setenv("RUNSIGNUP_API_URL", mockServer.URL)
 	defer os.Setenv("RUNSIGNUP_API_URL", originalAPIURL)
@@ -143,9 +143,17 @@ func TestFetchEvents_PartialFailure(t *testing.T) {
 		t.Errorf("Expected some successful events, got none")
 	}
 
-	// Ensure valid event was retrieved despite failure
 	expectedName := "Valid Triathlon"
+	expectedExternalURL := "https://external-triathlon.com"
+	expectedLogoURL := "https://example.com/triathlon-logo.png"
+
 	if events[0].Name != expectedName {
 		t.Errorf("Unexpected event name: got %v, want %v", events[0].Name, expectedName)
+	}
+	if events[0].ExternalURL != expectedExternalURL {
+		t.Errorf("Unexpected external URL: got %v, want %v", events[0].ExternalURL, expectedExternalURL)
+	}
+	if events[0].LogoURL != expectedLogoURL {
+		t.Errorf("Unexpected logo URL: got %v, want %v", events[0].LogoURL, expectedLogoURL)
 	}
 }

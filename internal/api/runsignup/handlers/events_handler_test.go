@@ -15,16 +15,12 @@ import (
 var mockFetchEvents = func(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event, error) {
 	return []models.Event{
 		{
-			ID:        12345,
-			Name:      "Test Race",
-			StartDate: "2025-01-01",
-			EndDate:   "2025-01-02",
-			URL:       "https://example.com",
-			City:      "Test City",
-			State:     state,
-			Zipcode:   "12345",
-			EventType: eventType,
-			Category:  "Runs",
+			ID:         12345,
+			Name:       "Test Race",
+			URL:        "https://example.com",
+			ExternalURL: "https://external.com",
+			LogoURL:    "https://example.com/logo.png",
+			Category:   "Runs",
 		},
 	}, nil
 }
@@ -65,4 +61,13 @@ func TestRunSignupEventsHandler_ValidRequest(t *testing.T) {
 	if events[0].Name != "Test Race" {
 		t.Errorf("Unexpected event name: got %v want %v", events[0].Name, "Test Race")
 	}
+
+	if events[0].ExternalURL != "https://external.com" {
+		t.Errorf("Unexpected External URL: got %v want %v", events[0].ExternalURL, "https://external.com")
+	}
+	
+	if events[0].LogoURL != "https://example.com/logo.png" {
+		t.Errorf("Unexpected Logo URL: got %v want %v", events[0].LogoURL, "https://example.com/logo.png")
+	}
+	
 }
