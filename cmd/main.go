@@ -22,6 +22,8 @@ func main() {
 
 	http.HandleFunc("/runsignup/events", handlers.RunSignupEventsHandler)
 
+	http.HandleFunc("/runsignup/race/", RunSignupRaceDetailsHandler)
+
 
 	port := os.Getenv("PORT")
 	if port == "" {
