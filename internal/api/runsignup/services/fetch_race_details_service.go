@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"time"
+	"net/http"
 
 	"github.com/rbungay/racedatabase-api/config"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/constants"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/models"
 )
-
 
 func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 	apiURL := config.GetEnv("RUNSIGNUP_API_URL", "")
@@ -44,21 +43,21 @@ func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 
 	var data struct {
 		Race struct {
-			ID        int    `json:"race_id"`
-			Name      string `json:"name"`
-			URL       string `json:"url"`
+			ID         int    `json:"race_id"`
+			Name       string `json:"name"`
+			URL        string `json:"url"`
 			ExternalURL string `json:"external_race_url"`
-			LogoURL   string `json:"logo_url"`
-			Timezone  string `json:"timezone"`
-			Events    []struct {
-				EventID    int    `json:"event_id"`
-				Name       string `json:"name"`
-				StartTime  string `json:"start_time"`
-				EndTime    string `json:"end_time"`
-				EventType  string `json:"event_type"`
-				Distance   string `json:"distance"`
-				RegOpens   string `json:"registration_opens"`
-				RegPeriods []struct {
+			LogoURL    string `json:"logo_url"`
+			Timezone   string `json:"timezone"`
+			Events     []struct {
+				EventID       int    `json:"event_id"`
+				Name          string `json:"name"`
+				StartTime     string `json:"start_time"`
+				EndTime       string `json:"end_time"`
+				EventType     string `json:"event_type"`
+				Distance      string `json:"distance"`
+				RegOpens      string `json:"registration_opens"`
+				RegPeriods    []struct {
 					Opens   string `json:"registration_opens"`
 					Closes  string `json:"registration_closes"`
 					Fee     string `json:"race_fee"`
@@ -90,23 +89,23 @@ func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 		}
 
 		eventDetails := models.EventDetails{
-			EventID:   event.EventID,
-			Name:      event.Name,
-			StartTime: event.StartTime,
-			EndTime:   event.EndTime,
-			EventType: event.EventType,
-			Distance:  event.Distance,
-			RegOpens:  event.RegOpens,
-			Category:  category,
+			EventID:    event.EventID,
+			Name:       event.Name,
+			StartTime:  event.StartTime,
+			EndTime:    event.EndTime,
+			EventType:  event.EventType,
+			Distance:   event.Distance,
+			RegOpens:   event.RegOpens,
+			Category:   string(category), // ✅ FIXED: Convert EventCategory to string
 			RegPeriods: []models.RegistrationPeriod{},
 		}
 
 		for _, regPeriod := range event.RegPeriods {
 			eventDetails.RegPeriods = append(eventDetails.RegPeriods, models.RegistrationPeriod{
-				Opens:   regPeriod.Opens,
-				Closes:  regPeriod.Closes,
-				Fee:     regPeriod.Fee,
-				ProcFee: regPeriod.ProcFee,
+				Opens:    regPeriod.Opens,
+				Closes:   regPeriod.Closes,
+				Fee:      regPeriod.Fee,
+				ProcFee:  regPeriod.ProcFee,
 			})
 		}
 
