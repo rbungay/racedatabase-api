@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/handlers"
+	"github.com/rbungay/racedatabase-api/internal/api/runsignup/services"
 )
 
 func main() {
@@ -22,7 +23,8 @@ func main() {
 
 	http.HandleFunc("/runsignup/events", handlers.RunSignupEventsHandler)
 
-	http.HandleFunc("/runsignup/race", handlers.RunSignupRaceDetailsHandler)
+	http.HandleFunc("/runsignup/race/", handlers.RunSignupRaceDetailsHandler(services.FetchRaceDetails))
+
 
 
 
