@@ -16,17 +16,10 @@ func mockRunSignupAPI(w http.ResponseWriter, r *http.Request) {
 			"race": {
 				"race_id": 12345,
 				"name": "Test Race",
-				"next_date": "2025-01-01",
-				"next_end_date": "2025-01-02",
 				"url": "https://example.com",
 				"external_race_url": "https://external-example.com",
 				"logo_url": "https://example.com/logo.png",
-				"event_type": "running_race",
-				"address": {
-					"city": "New York",
-					"state": "NY",
-					"zipcode": "10001"
-				}
+				"event_type": "running_race"
 			}
 		}]
 	}`
@@ -109,17 +102,10 @@ func mockRunSignupAPI_PartialFail(w http.ResponseWriter, r *http.Request) {
 			"race": {
 				"race_id": 67890,
 				"name": "Valid Triathlon",
-				"next_date": "2025-06-15",
-				"next_end_date": "2025-06-16",
 				"url": "https://example.com/triathlon",
 				"external_race_url": "https://external-triathlon.com",
 				"logo_url": "https://example.com/triathlon-logo.png",
-				"event_type": "triathlon",
-				"address": {
-					"city": "Los Angeles",
-					"state": "CA",
-					"zipcode": "90001"
-				}
+				"event_type": "triathlon"
 			}
 		}]
 	}`
