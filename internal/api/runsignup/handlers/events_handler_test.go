@@ -11,7 +11,6 @@ import (
 
 )
 
-// Mock service function
 var mockFetchEvents = func(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event, error) {
 	return []models.Event{
 		{
@@ -26,35 +25,28 @@ var mockFetchEvents = func(state, city, eventType, startDate, endDate, minDistan
 }
 
 func TestRunSignupEventsHandler_ValidRequest(t *testing.T) {
-	// Override FetchEvents() with mock function
 	FetchEventsFunc = mockFetchEvents
 	defer func() { FetchEventsFunc = services.FetchEvents}()
 
-	// Create a test HTTP request
 	req, err := http.NewRequest("GET", "/runsignup/events?state=NY&event_type=running_race", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Use httptest to create a ResponseRecorder
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(RunSignupEventsHandler)
 
-	// Call the handler
 	handler.ServeHTTP(rr, req)
 
-	// Check the status code
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	// Parse response
 	var events []models.Event
 	if err := json.Unmarshal(rr.Body.Bytes(), &events); err != nil {
 		t.Errorf("Failed to parse JSON response: %v", err)
 	}
 
-	// Validate response data
 	if len(events) == 0 {
 		t.Errorf("Expected events, got empty response")
 	}

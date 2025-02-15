@@ -105,7 +105,7 @@ func fetchEventsFromAPI(state, city, eventType, startDate, endDate, minDistance,
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, fmt.Errorf("failed git to create request: %w", err)
 	}
 	
 	resp, err := client.Do(req)

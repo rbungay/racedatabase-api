@@ -17,7 +17,6 @@ func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 	apiKey := config.GetEnv("RUNSIGNUP_API_KEY", "")
 	apiSecret := config.GetEnv("RUNSIGNUP_API_SECRET", "")
 
-	// ✅ Ensure correct API request URL
 	fullURL := fmt.Sprintf("%s/race/%d?api_key=%s&api_secret=%s&format=json", apiURL, raceID, apiKey, apiSecret)
 
 	fmt.Println("Fetching race details from:", fullURL)
@@ -43,7 +42,6 @@ func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 		return nil, fmt.Errorf("API error: status %d - response: %s", resp.StatusCode, string(body))
 	}
 
-	// Parse JSON response
 	var data struct {
 		Race struct {
 			ID         int    `json:"race_id"`
@@ -75,15 +73,12 @@ func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
-	// Debugging: Print parsed JSON structure
 	fmt.Printf("📌 Parsed Race Details: %+v\n", data)
 
-	// Ensure race data exists
 	if data.Race.ID == 0 {
 		return nil, fmt.Errorf("no race data found")
 	}
 
-	// Convert data to models
 	raceDetails := &models.RaceDetails{
 		ID:         data.Race.ID,
 		Name:       data.Race.Name,
@@ -95,7 +90,6 @@ func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 	}
 
 	for _, event := range data.Race.Events {
-		// ✅ Ensure correct event type handling
 		eventType := event.EventType
 		category, exists := constants.EventTypeToCategory[eventType]
 		if !exists {
@@ -110,11 +104,10 @@ func FetchRaceDetails(raceID int) (*models.RaceDetails, error) {
 			EventType:  eventType,
 			Distance:   event.Distance,
 			RegOpens:   event.RegOpens,
-			Category:   string(category), // ✅ Ensure correct category assignment
+			Category:   string(category), 
 			RegPeriods: []models.RegistrationPeriod{},
 		}
 
-		// Extract registration periods
 		for _, regPeriod := range event.RegPeriods {
 			eventDetails.RegPeriods = append(eventDetails.RegPeriods, models.RegistrationPeriod{
 				Opens:    regPeriod.Opens,
