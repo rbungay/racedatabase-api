@@ -4,33 +4,31 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/services"
 )
 
 // RunSignupRaceDetailsHandler handles requests for fetching race details
 func RunSignupRaceDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	// Ensure only GET requests are allowed
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Extract race ID from the URL
-	pathParts := strings.Split(strings.TrimPrefix(r.URL.Path, "/runsignup/race/"), "/")
-	if len(pathParts[0]) == 0 {
-		http.Error(w, "Race ID is required", http.StatusBadRequest)
+	// Get race_id from query params
+	raceIDStr := r.URL.Query().Get("race_id")
+	if raceIDStr == "" {
+		http.Error(w, "race_id parameter is required", http.StatusBadRequest)
 		return
 	}
 
-	raceID, err := strconv.Atoi(pathParts[0])
+	raceID, err := strconv.Atoi(raceIDStr)
 	if err != nil {
-		http.Error(w, "Invalid race ID format", http.StatusBadRequest)
+		http.Error(w, "Invalid race_id format", http.StatusBadRequest)
 		return
 	}
 
-	// Fetch race details using the service
+	// Fetch race details
 	raceDetails, err := services.FetchRaceDetails(raceID)
 	if err != nil {
 		http.Error(w, "Error fetching race details: "+err.Error(), http.StatusInternalServerError)

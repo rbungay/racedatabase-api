@@ -99,7 +99,7 @@ func fetchEventsFromAPI(state, city, eventType, startDate, endDate, minDistance,
 		params.Set("radius", radius) 
 	}
 
-	fullURL := fmt.Sprintf("%s?%s", apiURL, params.Encode())
+	fullURL := fmt.Sprintf("%s/races?%s", apiURL, params.Encode())
 	fmt.Println("Making API request to:", fullURL) 
 
 	client := &http.Client{Timeout: 10 * time.Second}
