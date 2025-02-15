@@ -10,3 +10,4 @@ type Event struct {
 	LogoURL     string `json:"logo_url"`          
 	Category    constants.EventCategory `json:"category"`
 }
+
