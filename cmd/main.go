@@ -3,16 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/rbungay/racedatabase-api/internal/api/runsignup/handlers"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/services"
 )
 
 func main() {
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("Warning: No .env file found, using system env variables.")
@@ -20,12 +16,18 @@ func main() {
 		log.Println(".env file loaded successfully.")
 	}
 
+	// Test fetch for New Jersey races
+	events, err := services.FetchEvents("NJ", "", "", "", "", "", "", "", "")
+	if err != nil {
+		log.Fatalf("Error fetching events: %v", err)
+	}
+	fmt.Printf("Successfully fetched %d events from New Jersey\n", len(events))
 
+	// Comment out existing server code
+	/*
 	http.HandleFunc("/runsignup/events", handlers.RunSignupEventsHandler)
 
 	http.HandleFunc("/runsignup/race/", handlers.RunSignupRaceDetailsHandler(services.FetchRaceDetails))
-
-
 
 
 	port := os.Getenv("PORT")
@@ -39,4 +41,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
+	*/
 }

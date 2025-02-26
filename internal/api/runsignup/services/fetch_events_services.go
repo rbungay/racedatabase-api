@@ -6,12 +6,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/rbungay/racedatabase-api/config"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/constants"
 	"github.com/rbungay/racedatabase-api/internal/api/runsignup/models"
+	"github.com/rbungay/racedatabase-api/internal/api/runsignup/storage"
 )
 
 func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDistance, zipcode, radius string) ([]models.Event,error){
@@ -19,6 +20,13 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 	var mu sync.Mutex
 	var allEvents []models.Event
 	var errorList []error
+
+	// Initialize Supabase storage
+	dbURL := config.GetEnv("SUPABASE_DB_URL", "")
+	supabaseStorage, err := storage.NewSupabaseStorage(dbURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize Supabase storage: %w", err)
+	}
 
 	if eventType != "" && !constants.ValidEventTypes[eventType] {
 		return nil, fmt.Errorf("invalid event_type: %s. Must be one of: %v", eventType, constants.ValidEventTypes)
@@ -41,6 +49,21 @@ func FetchEvents(state, city, eventType, startDate, endDate, minDistance, maxDis
 			mu.Lock()
 			allEvents = append(allEvents,events...)
 			mu.Unlock()
+
+			// Store each event's details in Supabase
+			for _, event := range events {
+				raceDetails, err := FetchRaceDetails(event.ID)
+				if err != nil {
+					fmt.Printf("Failed to fetch details for race %d: %v\n", event.ID, err)
+					continue
+				}
+
+				if err := supabaseStorage.SaveRace(raceDetails); err != nil {
+					fmt.Printf("Failed to store race %d in Supabase: %v\n", event.ID, err)
+				} else {
+					fmt.Printf("Successfully stored race %d in Supabase\n", event.ID)
+				}
+			}
 		}(eventType)
 	}
 
